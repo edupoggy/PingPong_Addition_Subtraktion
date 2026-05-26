@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Rechen-Pingpong bis 100</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,Arial,sans-serif;background:linear-gradient(135deg,#67e8f9,#bbf7d0,#fde68a);color:#0f172a}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer}
+.hidden{display:none!important}
+.start,.end{width:100vw;height:100vh;padding:1.5vh 2vw;display:flex;align-items:center;justify-content:center}
+.card{width:min(100%,1280px);height:94vh;border:8px solid #fff;border-radius:48px;background:rgba(255,255,255,.93);box-shadow:0 24px 70px #0003;padding:clamp(10px,1.6vh,18px);display:flex;flex-direction:column;justify-content:space-between;text-align:center;overflow:hidden}
+.end .card{width:min(90vw,820px);height:auto;padding:42px}
+h1{margin:0;font-size:clamp(32px,5.2vw,64px);color:#0f766e;font-weight:1000;line-height:1;text-shadow:0 4px 0 #fff}
+.subtitle{margin:6px 0 0;color:#1e3a8a;font-size:clamp(16px,2.2vw,26px);font-weight:900}
+.panel{border-radius:28px;padding:clamp(8px,1.2vh,14px);background:#ccfbf1}
+.panel.yellow{background:#fef9c3}
+.panel h2{margin:0 0 6px;font-size:clamp(20px,2.4vw,30px);font-weight:1000;color:#0f766e}
+.panel.yellow h2{color:#2563eb}
+.choiceBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.difficultyBtns{display:flex;justify-content:center;gap:16px}.difficultyBtns .sel{width:min(320px,42vw)}
+.timeBtns{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.sel,.mode{border:4px solid #fff;border-radius:22px;background:#fff;color:#2563eb;padding:clamp(7px,1.1vh,12px);font-size:clamp(15px,2vw,24px);font-weight:1000;box-shadow:0 7px 0 #0002}
+.sel.active{background:#14b8a6;border-color:#0f766e;color:#fff}
+.mode.active{background:#facc15;border-color:#2563eb;color:#1e3a8a}
+.info{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.info div{border-radius:24px;padding:clamp(8px,1.2vh,13px);font-size:clamp(15px,1.8vw,21px);font-weight:1000;box-shadow:0 8px 20px #0002}
+.info div:nth-child(1){background:#bfdbfe}.info div:nth-child(2){background:#bbf7d0}.info div:nth-child(3){background:#fde68a}
+.main{width:100%;height:clamp(54px,8.5vh,76px);border:0;border-radius:28px;background:#14b8a6;color:#fff;font-size:clamp(26px,3.5vw,42px);font-weight:1000;box-shadow:0 10px 0 #0f766e}
+.main:active,.sel:active,.mode:active,.ans:active{transform:translateY(3px)}
+
+.game{width:100vw;height:100vh;padding:4vh 2vw;display:flex;align-items:center;justify-content:center}
+.plate{position:relative;width:min(1500px,96vw);height:92vh;display:flex;align-items:center;justify-content:space-between;overflow:hidden;border:12px solid #fff;border-radius:48px;background:linear-gradient(90deg,#22d3ee,#4ade80,#60a5fa);box-shadow:0 25px 70px #0004}
+.side{position:relative;height:100%;width:38vw;min-width:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;transform-origin:center}
+.left{transform:rotate(90deg)}
+.right{transform:rotate(-90deg)}
+.score{position:absolute;top:16px;left:50%;transform:translateX(-50%);min-width:76px;border:4px solid #fff;border-radius:999px;background:#14b8a6;color:#fff;padding:10px 24px;font-size:clamp(30px,4vw,42px);font-weight:1000;box-shadow:0 8px 24px #0003;text-align:center}
+.taskCard{width:min(92%,570px);min-height:330px;border:6px solid #fff;border-radius:40px;padding:22px;text-align:center;background:rgba(255,255,255,.75);box-shadow:0 20px 60px #0003}
+.taskCard.active{background:#e0f2fe;border-color:#fde047}
+.label{font-size:clamp(16px,1.8vw,21px);font-weight:1000;text-transform:uppercase;color:#0f766e}
+.task{margin:18px 0;font-size:clamp(58px,8vw,86px);line-height:1;color:#1e3a8a;font-weight:1000}
+.answers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ans{height:96px;border:4px solid #fff;border-radius:32px;background:linear-gradient(#fde047,#facc15);color:#1e3a8a;font-size:clamp(36px,4.8vw,52px);font-weight:1000;box-shadow:0 8px 0 #0002}
+.wait{display:flex;flex-direction:column;align-items:center;justify-content:center;height:230px;gap:14px;font-size:72px}
+.wait span{font-size:clamp(27px,3.2vw,38px);font-weight:1000;color:#67e8f9}
+.fb{margin-top:18px;height:46px;font-size:clamp(22px,2.8vw,30px);font-weight:1000;color:#fff;text-shadow:0 3px 8px #0005;text-align:center}
+.net{position:relative;height:100%;width:20vw;min-width:220px;display:flex;align-items:center;justify-content:center;border-left:10px dashed #ffffffb3;border-right:10px dashed #ffffffb3;background:rgba(16,185,129,.28)}
+.line{position:absolute;left:50%;top:0;width:8px;height:100%;transform:translateX(-50%);background:#ffffffb3}
+.timer{position:absolute;top:26px;z-index:3;border:4px solid #fff;border-radius:999px;background:#f87171;color:#fff;padding:12px 26px;font-size:clamp(34px,4vw,46px);font-weight:1000}
+.netbox{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;gap:22px}
+.ping{margin-top:120px;border-radius:24px;background:rgba(255,255,255,.82);padding:10px 18px;font-size:clamp(16px,1.8vw,22px);color:#059669;font-weight:1000;box-shadow:0 6px 18px #0002}
+.phase{position:absolute;bottom:26px;z-index:3;border:4px solid #fff;border-radius:999px;background:#ffffffe0;color:#059669;padding:10px 18px;font-size:clamp(16px,1.8vw,24px);font-weight:1000;text-align:center}
+.flyingBall{position:absolute;z-index:8;left:50%;top:50%;width:clamp(42px,5vw,72px);height:clamp(42px,5vw,72px);border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:clamp(30px,4vw,54px);background:#fde047;border:4px solid #fff;box-shadow:0 10px 24px #0004;transform:translate(-50%,-50%);pointer-events:none;opacity:0}
+.flyingBall.flyLeftToRight{animation:flyLTR .55s ease-in-out forwards}
+.flyingBall.flyRightToLeft{animation:flyRTL .55s ease-in-out forwards}
+@keyframes flyLTR{0%{left:18%;top:55%;opacity:1;transform:translate(-50%,-50%) scale(.75) rotate(0deg)}45%{left:50%;top:35%;opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(180deg)}100%{left:82%;top:55%;opacity:0;transform:translate(-50%,-50%) scale(.75) rotate(360deg)}}
+@keyframes flyRTL{0%{left:82%;top:55%;opacity:1;transform:translate(-50%,-50%) scale(.75) rotate(0deg)}45%{left:50%;top:35%;opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(-180deg)}100%{left:18%;top:55%;opacity:0;transform:translate(-50%,-50%) scale(.75) rotate(-360deg)}}
+.endMsg,.endScore{margin:18px 0;font-size:clamp(24px,3.5vw,40px);color:#1e3a8a;font-weight:1000}
+
+@media(max-height:720px){.card{padding:10px}.panel{padding:8px}.main{height:50px}.taskCard{min-height:290px}.ans{height:82px}.phase{bottom:14px}.fb{font-size:22px}}
+@media(max-width:900px){.choiceBtns,.timeBtns{grid-template-columns:repeat(2,1fr)}.info{grid-template-columns:1fr}}
+@media (max-width: 950px) and (orientation: landscape) {
+  .start{padding:1vh 1vw}.card{height:98vh;width:99vw;border-width:4px;border-radius:24px;padding:7px}h1{font-size:clamp(23px,5vw,33px)}.subtitle{font-size:clamp(11px,2vw,15px);margin-top:2px}.panel{border-radius:16px;padding:5px}.panel h2{font-size:clamp(14px,2.3vw,18px);margin-bottom:3px}.choiceBtns{grid-template-columns:repeat(3,1fr);gap:4px}.timeBtns{grid-template-columns:repeat(5,1fr);gap:4px}.sel,.mode{border-width:2px;border-radius:10px;padding:4px 2px;font-size:clamp(10px,1.9vw,14px);box-shadow:0 3px 0 #0002}.info{grid-template-columns:repeat(3,1fr);gap:5px}.info div{border-radius:12px;padding:5px 4px;font-size:clamp(10px,1.8vw,13px)}.main{height:38px;border-radius:16px;font-size:clamp(18px,3.2vw,26px);box-shadow:0 5px 0 #0f766e}.game{padding:1vh 1vw}.plate{width:99vw;height:98vh;border-width:5px;border-radius:24px}.side{width:40vw;min-width:0}.net{width:20vw;min-width:90px;border-left-width:5px;border-right-width:5px}.line{width:4px}.score{top:6px;min-width:44px;border-width:2px;padding:4px 12px;font-size:clamp(20px,4vw,28px)}.taskCard{width:92%;min-height:180px;border-width:3px;border-radius:22px;padding:10px}.label{font-size:clamp(10px,2vw,13px)}.task{margin:8px 0;font-size:clamp(34px,7vw,52px)}.answers{gap:6px}.ans{height:48px;border-width:2px;border-radius:16px;font-size:clamp(24px,5vw,34px);box-shadow:0 4px 0 #0002}.wait{height:130px;font-size:40px;gap:6px}.wait span{font-size:clamp(16px,3vw,22px)}.fb{margin-top:8px;height:28px;font-size:clamp(14px,2.8vw,19px)}.timer{top:8px;border-width:2px;padding:5px 12px;font-size:clamp(18px,3.5vw,26px)}.ping{margin-top:72px;border-radius:14px;padding:6px 8px;font-size:clamp(11px,2vw,15px)}.phase{bottom:8px;border-width:2px;border-radius:14px;padding:5px 8px;font-size:clamp(10px,1.8vw,13px);max-width:18vw}.flyingBall{width:clamp(26px,4vw,38px);height:clamp(26px,4vw,38px);font-size:clamp(18px,3vw,28px);border-width:2px}.end .card{height:auto;max-height:96vh;padding:14px}.endMsg,.endScore{margin:8px 0;font-size:clamp(18px,3vw,26px)}
+}
+@media (max-width:700px) and (orientation:portrait){body::before{content:"Bitte iPhone quer drehen 🏓";position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;background:linear-gradient(135deg,#67e8f9,#bbf7d0,#fde68a);color:#1e3a8a;font-size:32px;font-weight:1000}}
+</style>
+</head>
+<body>
+<section id="start" class="start">
+<div class="card">
+<div>
+<h1>🏓 Rechen-Pingpong 🏓</h1>
+<p class="subtitle">Übt Addition und Subtraktion bis 100 – wie bei einer echten Tischtennispartie!</p>
+</div>
+
+<div class="panel">
+<h2>Welche Rechenart?</h2>
+<div class="choiceBtns">
+<button class="sel active" data-op="add">Addition</button>
+<button class="sel" data-op="sub">Subtraktion</button>
+<button class="sel" data-op="mixed">Plus & Minus</button>
+</div>
+</div>
+
+<div class="panel">
+<h2>Schwierigkeit</h2>
+<div class="difficultyBtns">
+<button class="sel active" data-difficulty="easy">Leicht<br><span style="font-size:.65em">ohne Zehnerübergang</span></button>
+<button class="sel" data-difficulty="hard">Schwer<br><span style="font-size:.65em">mit Zehnerübergang</span></button>
+</div>
+</div>
+
+<div class="panel yellow">
+<h2>Zeitmodus</h2>
+<div class="timeBtns">
+<button class="mode active" data-time="0">Ohne Zeitlimit</button>
+<button class="mode" data-time="5">5 Sekunden</button>
+<button class="mode" data-time="10">10 Sekunden</button>
+<button class="mode" data-time="15">15 Sekunden</button>
+<button class="mode" data-time="20">20 Sekunden</button>
+</div>
+</div>
+
+<div class="info">
+<div>👦 Spieler links</div>
+<div>➕➖ Rechnen bis 100</div>
+<div>👧 Spieler rechts</div>
+</div>
+
+<button id="startBtn" class="main">SPIEL STARTEN</button>
+</div>
+</section>
+
+<section id="game" class="game hidden">
+<main class="plate">
+<div id="flyingBall" class="flyingBall">🏓</div>
+
+<div class="side left">
+<div id="scoreL" class="score">0</div>
+<div id="cardL" class="taskCard"></div>
+<div id="fbL" class="fb"></div>
+</div>
+
+<div class="net">
+<div id="timer" class="timer hidden">⏰ 5</div>
+<div class="line"></div>
+<div class="netbox"><div id="netText" class="ping">🏓 Ballwechsel</div></div>
+<div id="phase" class="phase hidden"></div>
+</div>
+
+<div class="side right">
+<div id="scoreR" class="score">0</div>
+<div id="cardR" class="taskCard"></div>
+<div id="fbR" class="fb"></div>
+</div>
+</main>
+</section>
+
+<section id="end" class="end hidden">
+<div class="card">
+<div style="font-size:90px">🏆</div>
+<h1 id="winnerText">Spieler gewinnt!</h1>
+<div id="endMsg" class="endMsg"></div>
+<div id="endScore" class="endScore"></div>
+<button id="newRound" class="main">NEUE RUNDE</button>
+</div>
+</section>
+
+<script>
+const WIN = 10;
+let operationMode = "add";
+let difficulty = "easy";
+let timeLimit = 0;
+let timeLeft = 0;
+let timerInt = null;
+
+let active = "left";
+let task = null;
+let score = {left:0, right:0};
+let turns = {left:0, right:0};
+let feedback = {left:"", right:""};
+let resolved = false;
+let phase = "normal";
+
+const $ = id => document.getElementById(id);
+
+function randomInt(min,max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+function shuffle(array){ return [...array].sort(() => Math.random() - 0.5); }
+function ones(n){ return n % 10; }
+
+function makeEasyAddition(){
+  let a,b;
+  do{
+    a = randomInt(1,99);
+    b = randomInt(1,100-a);
+  }while(ones(a)+ones(b) >= 10);
+  return {q:`${a} + ${b}`, c:a+b};
+}
+
+function makeHardAddition(){
+  let a,b;
+  do{
+    a = randomInt(1,89);
+    b = randomInt(1,100-a);
+  }while(ones(a)+ones(b) < 10);
+  return {q:`${a} + ${b}`, c:a+b};
+}
+
+function makeEasySubtraction(){
+  let a,b;
+  do{
+    a = randomInt(1,100);
+    b = randomInt(1,a);
+  }while(ones(a) < ones(b));
+  return {q:`${a} − ${b}`, c:a-b};
+}
+
+function makeHardSubtraction(){
+  let a,b;
+  do{
+    a = randomInt(11,100);
+    b = randomInt(1,a);
+  }while(ones(a) >= ones(b));
+  return {q:`${a} − ${b}`, c:a-b};
+}
+
+function makeTask(){
+  let op = operationMode;
+  if(op === "mixed") op = Math.random() > 0.5 ? "add" : "sub";
+
+  let base;
+  if(op === "add" && difficulty === "easy") base = makeEasyAddition();
+  if(op === "add" && difficulty === "hard") base = makeHardAddition();
+  if(op === "sub" && difficulty === "easy") base = makeEasySubtraction();
+  if(op === "sub" && difficulty === "hard") base = makeHardSubtraction();
+
+  const wrong = new Set();
+  while(wrong.size < 2){
+    const value = base.c + randomInt(-10,10);
+    if(value >= 0 && value <= 100 && value !== base.c) wrong.add(value);
+  }
+
+  return {
+    q: base.q,
+    c: base.c,
+    ans: shuffle([base.c, ...wrong])
+  };
+}
+
+function show(screen){
+  $("start").classList.toggle("hidden", screen !== "start");
+  $("game").classList.toggle("hidden", screen !== "game");
+  $("end").classList.toggle("hidden", screen !== "end");
+}
+
+function renderOptions(){
+  document.querySelectorAll("[data-op]").forEach(button => {
+    button.classList.toggle("active", button.dataset.op === operationMode);
+  });
+  document.querySelectorAll("[data-difficulty]").forEach(button => {
+    button.classList.toggle("active", button.dataset.difficulty === difficulty);
+  });
+}
+
+function renderTimeButtons(){
+  document.querySelectorAll(".mode").forEach(button => {
+    button.classList.toggle("active", Number(button.dataset.time) === timeLimit);
+  });
+}
+
+function renderCard(side){
+  const isActive = active === side;
+  const card = side === "left" ? $("cardL") : $("cardR");
+  card.className = "taskCard" + (isActive ? " active" : "");
+
+  if(isActive){
+    card.innerHTML = `
+      <div class="label">Tippe die richtige Antwort!</div>
+      <div class="task">${task.q}</div>
+      <div class="answers">
+        ${task.ans.map(answer => `<button class="ans" data-answer="${answer}">${answer}</button>`).join("")}
+      </div>
+    `;
+    card.querySelectorAll(".ans").forEach(button => {
+      button.onclick = () => answer(Number(button.dataset.answer));
+    });
+  } else {
+    card.innerHTML = `
+      <div class="label">Warte auf den Ball</div>
+      <div class="wait"><div>🏓</div><span>Bereit machen!</span></div>
+    `;
+  }
+}
+
+function renderPhase(){
+  if(phase === "sudden"){
+    $("netText").textContent = "Fehler entscheidet!";
+    $("phase").textContent = "Gleichstand: Wer jetzt einen Fehler macht, verliert.";
+    $("phase").classList.remove("hidden");
+  } else if(phase === "final"){
+    $("netText").textContent = "Letzter Ball!";
+    $("phase").textContent = "Der Gegenspieler bekommt noch einen fairen letzten Ball.";
+    $("phase").classList.remove("hidden");
+  } else {
+    $("netText").textContent = "🏓 Ballwechsel";
+    $("phase").classList.add("hidden");
+  }
+}
+
+function render(){
+  $("scoreL").textContent = score.left;
+  $("scoreR").textContent = score.right;
+  $("fbL").textContent = feedback.left || "";
+  $("fbR").textContent = feedback.right || "";
+  renderCard("left");
+  renderCard("right");
+  $("timer").classList.toggle("hidden", timeLimit === 0);
+  $("timer").textContent = `⏰ ${timeLeft}`;
+  renderPhase();
+}
+
+function startTimer(){
+  clearInterval(timerInt);
+  if(timeLimit === 0){
+    timeLeft = 0;
+    render();
+    return;
+  }
+  timeLeft = timeLimit;
+  render();
+  timerInt = setInterval(() => {
+    if(resolved) return;
+    timeLeft -= 1;
+    render();
+    if(timeLeft <= 0) resolve(false, true);
+  }, 1000);
+}
+
+function startGame(){
+  score = {left:0, right:0};
+  turns = {left:0, right:0};
+  feedback = {left:"Los geht's!", right:""};
+  phase = "normal";
+  resolved = false;
+  active = Math.random() > 0.5 ? "left" : "right";
+  task = makeTask();
+  timeLeft = timeLimit;
+  show("game");
+  render();
+  startTimer();
+}
+
+function toStart(){
+  clearInterval(timerInt);
+  feedback = {left:"", right:""};
+  phase = "normal";
+  resolved = false;
+  timeLeft = timeLimit;
+  show("start");
+  renderOptions();
+  renderTimeButtons();
+}
+
+function finish(winner, message){
+  clearInterval(timerInt);
+  $("winnerText").textContent = `Spieler ${winner === "left" ? "links" : "rechts"} gewinnt!`;
+  $("endMsg").textContent = message;
+  $("endScore").textContent = `Links ${score.left} : ${score.right} Rechts`;
+  show("end");
+}
+
+function checkEnd(updatedScore, updatedTurns, player, other, wasCorrect){
+  const equalTurns = updatedTurns.left === updatedTurns.right;
+  const reachedTarget = updatedScore.left >= WIN || updatedScore.right >= WIN;
+
+  if(phase === "sudden"){
+    if(!wasCorrect){
+      finish(other, `Spieler ${other === "left" ? "links" : "rechts"} gewinnt, weil der Gegner einen Fehler gemacht hat!`);
+      return true;
+    }
+    feedback[player] = "🏓 Richtig! Weiter geht's!";
+    feedback[other] = "Fehler entscheidet!";
+    return false;
+  }
+
+  if(reachedTarget && equalTurns){
+    if(updatedScore.left > updatedScore.right){
+      finish("left", "Klarer Sieg für Spieler links! 🎉");
+      return true;
+    }
+    if(updatedScore.right > updatedScore.left){
+      finish("right", "Klarer Sieg für Spieler rechts! 🎉");
+      return true;
+    }
+    phase = "sudden";
+    feedback = {
+      left: "Gleichstand! Fehler entscheidet!",
+      right: "Gleichstand! Fehler entscheidet!"
+    };
+    return false;
+  }
+
+  if(reachedTarget && !equalTurns){
+    phase = "final";
+    feedback[player] = "10 Punkte! Der Gegner bekommt noch einen letzten Ball.";
+    feedback[other] = "Letzter Ball zum Ausgleich!";
+    return false;
+  }
+
+  return false;
+}
+
+function animateBall(from,to){
+  const ball = $("flyingBall");
+  ball.className = "flyingBall";
+  void ball.offsetWidth;
+  if(from === "left" && to === "right") ball.classList.add("flyLeftToRight");
+  if(from === "right" && to === "left") ball.classList.add("flyRightToLeft");
+}
+
+function nextTurn(other, delay){
+  animateBall(active, other);
+  setTimeout(() => {
+    active = other;
+    task = makeTask();
+    resolved = false;
+    render();
+    startTimer();
+  }, delay);
+}
+
+function resolve(correct, timeout = false){
+  if(resolved) return;
+  resolved = true;
+  clearInterval(timerInt);
+
+  const player = active;
+  const other = player === "left" ? "right" : "left";
+  const updatedTurns = {...turns, [player]: turns[player] + 1};
+  const updatedScore = {...score};
+
+  if(phase === "sudden"){
+    if(!correct) updatedScore[other] += 1;
+  } else if(correct){
+    updatedScore[player] += 1;
+  } else {
+    updatedScore[other] += 1;
+  }
+
+  turns = updatedTurns;
+  score = updatedScore;
+
+  if(phase !== "sudden"){
+    if(correct){
+      feedback[player] = "🏓 Super!";
+      feedback[other] = "Der Ball kommt!";
+    } else {
+      feedback[player] = timeout ? "⏰ Zu langsam!" : `❌ ${task.c} wäre richtig!`;
+      feedback[other] = "🎉 Punkt für dich!";
+    }
+  }
+
+  render();
+  const ended = checkEnd(updatedScore, updatedTurns, player, other, correct);
+  render();
+
+  if(ended) return;
+  nextTurn(other, correct ? 450 : 750);
+}
+
+function answer(value){
+  resolve(value === task.c, false);
+}
+
+document.querySelectorAll(".mode").forEach(button => {
+  button.onclick = () => {
+    timeLimit = Number(button.dataset.time);
+    renderTimeButtons();
+  };
+});
+
+document.querySelectorAll("[data-op]").forEach(button => {
+  button.onclick = () => {
+    operationMode = button.dataset.op;
+    renderOptions();
+  };
+});
+
+document.querySelectorAll("[data-difficulty]").forEach(button => {
+  button.onclick = () => {
+    difficulty = button.dataset.difficulty;
+    renderOptions();
+  };
+});
+
+$("startBtn").onclick = startGame;
+$("newRound").onclick = toStart;
+
+renderOptions();
+renderTimeButtons();
+show("start");
+</script>
+</body>
+</html>
