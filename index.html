@@ -18,7 +18,7 @@ h1{margin:0;font-size:clamp(32px,5.2vw,64px);color:#0f766e;font-weight:1000;line
 .panel.yellow{background:#fef9c3}
 .panel h2{margin:0 0 6px;font-size:clamp(20px,2.4vw,30px);font-weight:1000;color:#0f766e}
 .panel.yellow h2{color:#2563eb}
-.choiceBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.difficultyBtns{display:flex;justify-content:center;gap:16px}.difficultyBtns .sel{width:min(320px,42vw)}
+.choiceBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.difficultyBtns{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
 .timeBtns{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .sel,.mode{border:4px solid #fff;border-radius:22px;background:#fff;color:#2563eb;padding:clamp(7px,1.1vh,12px);font-size:clamp(15px,2vw,24px);font-weight:1000;box-shadow:0 7px 0 #0002}
 .sel.active{background:#14b8a6;border-color:#0f766e;color:#fff}
@@ -76,17 +76,17 @@ h1{margin:0;font-size:clamp(32px,5.2vw,64px);color:#0f766e;font-weight:1000;line
 <div class="panel">
 <h2>Welche Rechenart?</h2>
 <div class="choiceBtns">
-<button class="sel active" data-op="add">Addition</button>
+<button class="sel active" data-op="mixed">Plus & Minus</button>
+<button class="sel" data-op="add">Addition</button>
 <button class="sel" data-op="sub">Subtraktion</button>
-<button class="sel" data-op="mixed">Plus & Minus</button>
 </div>
 </div>
 
 <div class="panel">
 <h2>Schwierigkeit</h2>
 <div class="difficultyBtns">
-<button class="sel active" data-difficulty="easy">Leicht<br><span style="font-size:.65em">ohne Zehnerübergang</span></button>
-<button class="sel" data-difficulty="hard">Schwer<br><span style="font-size:.65em">mit Zehnerübergang</span></button>
+<button class="sel active" data-difficulty="easy" style="min-width:260px">Leicht<br><span style="font-size:.65em">ohne Zehnerübergang</span></button>
+<button class="sel" data-difficulty="hard" style="min-width:260px">Schwer<br><span style="font-size:.65em">mit Zehnerübergang</span></button>
 </div>
 </div>
 
@@ -148,7 +148,7 @@ h1{margin:0;font-size:clamp(32px,5.2vw,64px);color:#0f766e;font-weight:1000;line
 
 <script>
 const WIN = 10;
-let operationMode = "add";
+let operationMode = "mixed";
 let difficulty = "easy";
 let timeLimit = 0;
 let timeLeft = 0;
